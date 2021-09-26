@@ -18,7 +18,16 @@ func TestSum(t *testing.T) {
 
 func TestSumAll(t *testing.T) {
 	expected := []int{3, 9}
-	got := SumAll([]int{1, 2}, []int{0, 9})
+	got := SumAll([]int{1, 2}, []int{9, 0})
+
+	if !reflect.DeepEqual(expected, got) {
+		t.Errorf("expected %d, got %d", expected, got)
+	}
+}
+
+func TestSumAllTails(t *testing.T) {
+	expected := []int{2, 0}
+	got := SumAllTails([]int{1, 2}, []int{9, 0})
 
 	if !reflect.DeepEqual(expected, got) {
 		t.Errorf("expected %d, got %d", expected, got)
