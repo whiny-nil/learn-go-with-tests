@@ -1,4 +1,4 @@
-package sum
+package sums
 
 func Sum(numbers []int) int {
 	var sum int

@@ -1,3 +1,3 @@
-module sum
+module sums
 
 go 1.17
