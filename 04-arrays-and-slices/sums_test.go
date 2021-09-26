@@ -1,16 +1,26 @@
 package sums
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestSum(t *testing.T) {
-	t.Run("sums a slice numbers", func(t *testing.T) {
-		numbers := []int{1, 2, 3}
+	numbers := []int{1, 2, 3}
 
-		expected := 6
-		got := Sum(numbers)
+	expected := 6
+	got := Sum(numbers)
 
-		if got != expected {
-			t.Errorf("expected %d, got %d", expected, got)
-		}
-	})
+	if got != expected {
+		t.Errorf("expected %d, got %d", expected, got)
+	}
+}
+
+func TestSumAll(t *testing.T) {
+	expected := []int{3, 9}
+	got := SumAll([]int{1, 2}, []int{0, 9})
+
+	if !reflect.DeepEqual(expected, got) {
+		t.Errorf("expected %d, got %d", expected, got)
+	}
 }
