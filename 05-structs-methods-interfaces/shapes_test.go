@@ -18,17 +18,23 @@ func TestArea(t *testing.T) {
 		got := shape.Area()
 
 		if got != expected {
-			t.Errorf("expected %g, got %g", expected, got)
+			t.Errorf("%#v expected %g, got %g", shape, expected, got)
 		}
 	}
 
-	t.Run("rectangles", func(t *testing.T) {
-		rectangle := Rectangle{8.0, 10.0}
-		checkArea(t, rectangle, 80.0)
-	})
+	tests := []struct {
+		Name     string
+		Shape    Shape
+		Expected float64
+	}{
+		{"Rectangle", Rectangle{Width: 8.0, Height: 10.0}, 80.0},
+		{"Circle", Circle{Radius: 8.0}, 201.06192982974676},
+		{"Triangle", Triangle{Base: 12.0, Height: 8.0}, 48.0},
+	}
 
-	t.Run("circles", func(t *testing.T) {
-		circle := Circle{8.0}
-		checkArea(t, circle, 201.06192982974676)
-	})
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			checkArea(t, test.Shape, test.Expected)
+		})
+	}
 }
