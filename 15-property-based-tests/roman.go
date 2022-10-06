@@ -35,3 +35,13 @@ func ConvertToRoman(arabic int) string {
 
 	return result.String()
 }
+
+func ConvertToArabic(roman string) int {
+	var total int
+
+	for range roman {
+		total++
+	}
+
+	return total
+}
