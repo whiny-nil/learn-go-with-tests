@@ -51,7 +51,7 @@ func TestRomanNumbers(t *testing.T) {
 }
 
 func TestArabicNumbers(t *testing.T) {
-	for _, test := range tests[:4] {
+	for _, test := range tests {
 		t.Run(`$test.roman => $test.arabic`, func(t *testing.T) {
 			got := ConvertToArabic(test.roman)
 			expected := test.arabic
