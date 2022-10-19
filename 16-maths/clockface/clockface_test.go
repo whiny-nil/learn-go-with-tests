@@ -17,16 +17,16 @@ func TestSecondHandAtMidnight(t *testing.T) {
 	}
 }
 
-// func TestSecondHandAt30Seconds(t *testing.T) {
-// 	tm := time.Date(1337, time.January, 1, 0, 0, 30, 0, time.UTC)
+func TestSecondHandAt30Seconds(t *testing.T) {
+	tm := time.Date(1337, time.January, 1, 0, 0, 30, 0, time.UTC)
 
-// 	expected := Point{X: 150, Y: 150 + 90}
-// 	actual := SecondHand(tm)
+	expected := Point{X: 150, Y: 150 + 90}
+	actual := SecondHand(tm)
 
-// 	if expected != actual {
-// 		t.Errorf("Expected %v, actual %v", expected, actual)
-// 	}
-// }
+	if expected != actual {
+		t.Errorf("Expected %v, actual %v", expected, actual)
+	}
+}
 
 func TestSecondsInRadians(t *testing.T) {
 	cases := []struct {

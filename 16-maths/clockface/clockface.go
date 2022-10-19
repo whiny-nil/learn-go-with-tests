@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+const secondHandLength = 90
+const clockCenterX = 150
+const clockCenterY = 150
+
 // A Point represents a 2D Cartesian coordinate
 type Point struct {
 	X float64
@@ -14,7 +18,12 @@ type Point struct {
 // SecondHand is the unit vector of the second hand of an analogue clock at time 't',
 // represented as a point
 func SecondHand(t time.Time) Point {
-	return Point{150, 60}
+	p := secondHandPoint(t)
+	p = Point{p.X * secondHandLength, p.Y * secondHandLength} // scale
+	p = Point{p.X, -p.Y}                                      // flip over X-axis
+	p = Point{p.X + clockCenterX, p.Y + clockCenterY}         // translate
+
+	return p
 }
 
 func secondHandPoint(t time.Time) Point {
