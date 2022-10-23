@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-const secondHandLength = 90
 const clockCenterX = 150
 const clockCenterY = 150
 
