@@ -1,0 +1,5 @@
+{{define "index"}}
+{{template "top" .}}
+<ol>{{range .}}<li><a href="/post/{{.SanitizedTitle}}">{{.Title}}</a></li>{{end}}</ol>
+{{template "bottom" .}}
+{{end}}
