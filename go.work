@@ -7,3 +7,5 @@ use ./18-templating/blog
 use ./19-generics/generics
 
 use ./20-generic-arrays-slices/sums
+
+use ./22-scaling-acceptance-tests/go-specs-greet
