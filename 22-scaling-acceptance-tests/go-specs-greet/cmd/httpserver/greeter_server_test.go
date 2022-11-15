@@ -9,7 +9,7 @@ import (
 	"github.com/alecthomas/assert/v2"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"github.com/whiny-nil/learn-go-with-tests/22-scaling-acceptance-tests/go-specs-greet/drivers"
+	"github.com/whiny-nil/learn-go-with-tests/22-scaling-acceptance-tests/go-specs-greet/adapters/httpserver"
 	"github.com/whiny-nil/learn-go-with-tests/22-scaling-acceptance-tests/go-specs-greet/specifications"
 )
 
@@ -19,7 +19,7 @@ func TestGreeterService(t *testing.T) {
 	req := testcontainers.ContainerRequest{
 		FromDockerfile: testcontainers.FromDockerfile{
 			Context:    "../../.",
-			Dockerfile: "./cmd/httpserver/Dockerfile",
+			Dockerfile: "./Dockerfile",
 			// set to false if you want less spam, but this is helpful if you're having troubles
 			PrintBuildLog: true,
 		},
@@ -38,6 +38,6 @@ func TestGreeterService(t *testing.T) {
 	client := http.Client{
 		Timeout: 1 * time.Second,
 	}
-	driver := drivers.Driver{BaseURL: "http://localhost:8081", Client: &client}
+	driver := httpserver.Driver{BaseURL: "http://localhost:8081", Client: &client}
 	specifications.GreetSpecification(t, driver)
 }
