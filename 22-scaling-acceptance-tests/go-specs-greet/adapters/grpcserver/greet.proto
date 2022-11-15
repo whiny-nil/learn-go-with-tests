@@ -1,11 +1,12 @@
 syntax = "proto3";
 
-option go_package = "github.com/whiny-nil/learn-go-with-tests/22-scaling-acceptance-tests/go-specs-greet/adapters/grpcserver";
+option go_package = "github.com/whiny-nil/learn-go-with-tests/22-scaling-acceptance-tests/go-specs-Curse/adapters/grpcserver";
 
 package grpcserver;
 
 service Greeter {
   rpc Greet (GreetRequest) returns (GreetReply) {}
+  rpc Curse (CurseRequest) returns (CurseReply) {}
 }
 
 message GreetRequest {
@@ -13,5 +14,13 @@ message GreetRequest {
 }
 
 message GreetReply {
+  string message = 1;
+}
+
+message CurseRequest {
+  string name = 1;
+}
+
+message CurseReply {
   string message = 1;
 }
