@@ -8,6 +8,7 @@ import (
 
 type PlayerStore interface {
 	GetPlayerScore(name string) int
+	RecordWin(name string)
 }
 
 type PlayerServer struct {
@@ -15,6 +16,21 @@ type PlayerServer struct {
 }
 
 func (p *PlayerServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodPost:
+		p.processWin(res, req)
+	case http.MethodGet:
+		p.showScore(res, req)
+	}
+}
+
+func (p *PlayerServer) processWin(res http.ResponseWriter, req *http.Request) {
+	player := strings.TrimPrefix(req.URL.Path, "/players/")
+	p.store.RecordWin(player)
+	res.WriteHeader(http.StatusAccepted)
+}
+
+func (p *PlayerServer) showScore(res http.ResponseWriter, req *http.Request) {
 	player := strings.TrimPrefix(req.URL.Path, "/players/")
 	score := p.store.GetPlayerScore(player)
 
@@ -35,3 +51,5 @@ func GetPlayerScore(player string) int {
 		return 0
 	}
 }
+
+func RecordWin(player string) {}
