@@ -7,6 +7,8 @@ import (
 )
 
 func main() {
-	handler := http.HandlerFunc(httpserver.Handler)
-	http.ListenAndServe(":8081", handler)
+	mux := http.NewServeMux()
+	mux.Handle("/greet", httpserver.GreetHandler{})
+	mux.Handle("/curse", httpserver.CurseHandler{})
+	http.ListenAndServe(":8081", mux)
 }
