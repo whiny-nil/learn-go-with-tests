@@ -39,16 +39,3 @@ func (p *PlayerServer) showScore(res http.ResponseWriter, player string) {
 		fmt.Fprint(res, score)
 	}
 }
-
-func GetPlayerScore(player string) int {
-	switch player {
-	case "Pepper":
-		return 20
-	case "Floyd":
-		return 10
-	default:
-		return 0
-	}
-}
-
-func RecordWin(player string) {}
