@@ -113,8 +113,9 @@ func TestLeague(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		got := getLeagueFromResponse(t, response.Body)
 		assertResponseStatus(t, response.Code, http.StatusOK)
+		assertResponseContentType(t, response.Result().Header.Get("content-type"), "application/json")
+		got := getLeagueFromResponse(t, response.Body)
 		assertLeague(t, got, wantedLeague)
 	})
 }
@@ -157,6 +158,14 @@ func assertResponseStatus(t *testing.T, got, want int) {
 
 	if got != want {
 		t.Errorf("got status %d, want status %d", got, want)
+	}
+}
+
+func assertResponseContentType(t *testing.T, got, want string) {
+	t.Helper()
+
+	if got != want {
+		t.Errorf("got status %q, want status %q", got, want)
 	}
 }
 
