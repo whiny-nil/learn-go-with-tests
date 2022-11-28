@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -127,13 +126,13 @@ func newLeagueRequest() *http.Request {
 
 func getLeagueFromResponse(t *testing.T, body io.Reader) (league []Player) {
 	t.Helper()
-	err := json.NewDecoder(body).Decode(&league)
+	league, err := NewLeague(body)
 
 	if err != nil {
-		t.Fatalf("Unable to parse response from server %q into slice of Player, '%v'", body, err)
+		t.Fatal(err)
 	}
 
-	return
+	return league
 }
 
 func assertLeague(t *testing.T, got, want []Player) {
@@ -175,4 +174,13 @@ func assertResponseBody(t *testing.T, got, want string) {
 	if got != want {
 		t.Errorf("got body %q, want body %q", got, want)
 	}
+}
+
+func assertScoreEquals(t *testing.T, got, want int) {
+	t.Helper()
+
+	if got != want {
+		t.Errorf("got score %d, want score %d", got, want)
+	}
+
 }
