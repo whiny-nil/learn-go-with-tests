@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	poker "github.com/whiny-nil/learn-go-with-tests/23-build-an-application"
 )
 
 const dbFileName = "game.db.json"
@@ -14,12 +16,12 @@ func main() {
 		log.Fatalf("Problem opening %s %v", dbFileName, err)
 	}
 
-	store, err := NewFileSystemPlayerStore(db)
+	store, err := poker.NewFileSystemPlayerStore(db)
 
 	if err != nil {
 		log.Fatalf("problem creating file system player store, %v", err)
 	}
 
-	server := NewPlayerServer(store)
+	server := poker.NewPlayerServer(store)
 	log.Fatal(http.ListenAndServe(":5000", server))
 }
