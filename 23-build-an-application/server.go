@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"text/template"
+
+	"github.com/gorilla/websocket"
 )
 
 type Player struct {
@@ -21,23 +24,39 @@ type PlayerStore interface {
 type PlayerServer struct {
 	store PlayerStore
 	http.Handler
+	template *template.Template
 }
 
-func NewPlayerServer(store PlayerStore) *PlayerServer {
+const htmlTemplatePath = "game.html"
+
+func NewPlayerServer(store PlayerStore) (*PlayerServer, error) {
 	p := new(PlayerServer)
 
+	tmpl, err := template.ParseFiles(htmlTemplatePath)
+
+	if err != nil {
+		return nil, fmt.Errorf("problem opening %s, %v", htmlTemplatePath, err)
+	}
+
+	p.template = tmpl
 	p.store = store
 
 	router := http.NewServeMux()
+	router.Handle("/game", http.HandlerFunc(p.gameHandler))
 	router.Handle("/league", http.HandlerFunc(p.leagueHandler))
 	router.Handle("/players/", http.HandlerFunc(p.playersHandler))
+	router.Handle("/ws", http.HandlerFunc(p.webSocket))
 
 	p.Handler = router
 
-	return p
+	return p, nil
 }
 
 const jsonContentType = "application/json"
+
+func (p *PlayerServer) gameHandler(res http.ResponseWriter, req *http.Request) {
+	p.template.Execute(res, nil)
+}
 
 func (p *PlayerServer) leagueHandler(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("content-type", jsonContentType)
@@ -53,6 +72,17 @@ func (p *PlayerServer) playersHandler(res http.ResponseWriter, req *http.Request
 	case http.MethodGet:
 		p.showScore(res, player)
 	}
+}
+
+var wsUpgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
+func (p *PlayerServer) webSocket(res http.ResponseWriter, req *http.Request) {
+	conn, _ := wsUpgrader.Upgrade(res, req, nil)
+	_, winnerMsg, _ := conn.ReadMessage()
+	p.store.RecordWin(string(winnerMsg))
 }
 
 func (p *PlayerServer) processWin(res http.ResponseWriter, player string) {
