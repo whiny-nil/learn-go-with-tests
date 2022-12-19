@@ -27,17 +27,14 @@ func NewCLI(in io.Reader, out io.Writer, game Game) *CLI {
 	}
 }
 
-const PlayerPrompt = "Please enter the number of players: "
-const BadInputMsg = "You must enter a number for the number of players\n"
-
 func (cli *CLI) PlayPoker() {
-	fmt.Fprint(cli.out, PlayerPrompt)
+	cli.printPrompt()
 
 	numberOfPlayersInput := cli.readLine()
 	numberOfPlayers, err := strconv.Atoi(strings.Trim(numberOfPlayersInput, "\n"))
 
 	if err != nil {
-		fmt.Fprint(cli.out, BadInputMsg)
+		cli.printBadInput()
 		return
 	}
 
@@ -53,4 +50,35 @@ func extractWinner(userInput string) string {
 func (cli *CLI) readLine() string {
 	cli.in.Scan()
 	return cli.in.Text()
+}
+
+func (cli *CLI) PrintInstructions() {
+	cli.printSection()
+	cli.printInstructionText()
+	cli.printSection()
+}
+
+func (cli *CLI) printInstructionText() {
+	fmt.Fprint(cli.out, "Let's play poker!\n")
+	fmt.Fprint(cli.out, "\n")
+	fmt.Fprint(cli.out, "Type '<Name> wins' to record a win,\n")
+	fmt.Fprint(cli.out, "or 'quit' to exit without recording a win\n")
+}
+
+func (cli *CLI) printSection() {
+	fmt.Fprint(cli.out, "\n")
+	fmt.Fprint(cli.out, "------------------------------------------\n")
+	fmt.Fprint(cli.out, "\n")
+}
+
+const PlayerPrompt = "Please enter the number of players: "
+
+func (cli *CLI) printPrompt() {
+	fmt.Fprint(cli.out, PlayerPrompt)
+}
+
+const BadInputMsg = "You must enter a number for the number of players\n"
+
+func (cli *CLI) printBadInput() {
+	fmt.Fprint(cli.out, BadInputMsg)
 }

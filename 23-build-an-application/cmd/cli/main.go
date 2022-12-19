@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -20,7 +19,7 @@ func main() {
 	}
 	defer closeDB()
 
-	fmt.Println("Let's play poker")
-	fmt.Println("Type '<Name> wins' to record a win")
-	poker.NewCLI(os.Stdin, os.Stdout, game).PlayPoker()
+	cli := poker.NewCLI(os.Stdin, os.Stdout, game)
+	cli.PrintInstructions()
+	cli.PlayPoker()
 }
