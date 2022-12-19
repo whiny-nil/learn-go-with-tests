@@ -39,8 +39,22 @@ func (cli *CLI) PlayPoker() {
 	}
 
 	cli.game.Start(numberOfPlayers)
-	userInput := cli.readLine()
-	cli.game.Finish(extractWinner(userInput))
+
+	for {
+		userInput := cli.readLine()
+
+		if userInput == "quit" {
+			cli.printQuit()
+			break
+		}
+
+		if strings.Contains(userInput, " wins") {
+			cli.game.Finish(extractWinner(userInput))
+			break
+		}
+
+		cli.printInstructions()
+	}
 }
 
 func extractWinner(userInput string) string {
@@ -49,20 +63,20 @@ func extractWinner(userInput string) string {
 
 func (cli *CLI) readLine() string {
 	cli.in.Scan()
-	return cli.in.Text()
+	return strings.Trim(cli.in.Text(), " \n")
 }
 
-func (cli *CLI) PrintInstructions() {
-	cli.printSection()
-	cli.printInstructionText()
-	cli.printSection()
-}
-
-func (cli *CLI) printInstructionText() {
+func (cli *CLI) PrintWelcome() {
 	fmt.Fprint(cli.out, "Let's play poker!\n")
-	fmt.Fprint(cli.out, "\n")
-	fmt.Fprint(cli.out, "Type '<Name> wins' to record a win,\n")
-	fmt.Fprint(cli.out, "or 'quit' to exit without recording a win\n")
+	cli.printSection()
+	cli.printInstructions()
+	cli.printSection()
+}
+
+const InstructionText = "Type '<Name> wins' to record a win,\nor 'quit' to exit without recording a win\n"
+
+func (cli *CLI) printInstructions() {
+	fmt.Fprint(cli.out, InstructionText)
 }
 
 func (cli *CLI) printSection() {
@@ -81,4 +95,10 @@ const BadInputMsg = "You must enter a number for the number of players\n"
 
 func (cli *CLI) printBadInput() {
 	fmt.Fprint(cli.out, BadInputMsg)
+}
+
+const GoodbyeMsg = "No winner recorded.  Goodbye!\n"
+
+func (cli *CLI) printQuit() {
+	fmt.Fprint(cli.out, GoodbyeMsg)
 }

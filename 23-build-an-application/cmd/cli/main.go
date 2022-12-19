@@ -20,6 +20,6 @@ func main() {
 	defer closeDB()
 
 	cli := poker.NewCLI(os.Stdin, os.Stdout, game)
-	cli.PrintInstructions()
+	cli.PrintWelcome()
 	cli.PlayPoker()
 }

@@ -10,7 +10,7 @@ import (
 
 func TestCLI(t *testing.T) {
 	t.Run("it runs a game and records the winner", func(t *testing.T) {
-		in := strings.NewReader("7\nCleo\n")
+		in := strings.NewReader("7\nCleo wins\n")
 		stdout := &bytes.Buffer{}
 		game := &GameSpy{}
 
@@ -45,6 +45,30 @@ func TestCLI(t *testing.T) {
 		cli.PlayPoker()
 		assertMessagesSentToUser(t, stdout, poker.PlayerPrompt, poker.BadInputMsg)
 		assertGameNotStarted(t, game)
+	})
+
+	t.Run("it does not finish the game until '<name> wins' is entered", func(t *testing.T) {
+		in := strings.NewReader("2\nCleo\nCleo wins\n")
+		stdout := &bytes.Buffer{}
+		game := &GameSpy{}
+		cli := poker.NewCLI(in, stdout, game)
+
+		cli.PlayPoker()
+		assertMessagesSentToUser(t, stdout, poker.PlayerPrompt, poker.InstructionText)
+		assertGameStartedWith(t, game, 2)
+		assertGameFinishedWith(t, game, "Cleo")
+	})
+
+	t.Run("it does not finish the game when the string 'quit' is entered", func(t *testing.T) {
+		in := strings.NewReader("2\nquit\n")
+		stdout := &bytes.Buffer{}
+		game := &GameSpy{}
+		cli := poker.NewCLI(in, stdout, game)
+
+		cli.PlayPoker()
+		assertMessagesSentToUser(t, stdout, poker.PlayerPrompt, poker.GoodbyeMsg)
+		assertGameStartedWith(t, game, 2)
+		assertGameNotFinished(t, game)
 	})
 }
 
@@ -81,12 +105,20 @@ func assertGameFinishedWith(t testing.TB, game *GameSpy, want string) {
 	if game.FinishedWith != want {
 		t.Errorf("got %s, want %s", game.FinishedWith, want)
 	}
+}
 
+func assertGameNotFinished(t testing.TB, game *GameSpy) {
+	t.Helper()
+
+	if game.FinishCalled {
+		t.Error("game should not have finished")
+	}
 }
 
 type GameSpy struct {
 	StartCalled  bool
 	StartedWith  int
+	FinishCalled bool
 	FinishedWith string
 }
 
@@ -96,5 +128,6 @@ func (g *GameSpy) Start(numberOfPlayers int) {
 }
 
 func (g *GameSpy) Finish(winner string) {
+	g.FinishCalled = true
 	g.FinishedWith = winner
 }
