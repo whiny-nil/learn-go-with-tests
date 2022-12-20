@@ -3,7 +3,10 @@ package poker
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -25,11 +28,16 @@ type PlayerServer struct {
 	store PlayerStore
 	http.Handler
 	template *template.Template
+	game     Game
+}
+
+type playerServerWS struct {
+	*websocket.Conn
 }
 
 const htmlTemplatePath = "game.html"
 
-func NewPlayerServer(store PlayerStore) (*PlayerServer, error) {
+func NewPlayerServer(store PlayerStore, game Game) (*PlayerServer, error) {
 	p := new(PlayerServer)
 
 	tmpl, err := template.ParseFiles(htmlTemplatePath)
@@ -39,6 +47,7 @@ func NewPlayerServer(store PlayerStore) (*PlayerServer, error) {
 	}
 
 	p.template = tmpl
+	p.game = game
 	p.store = store
 
 	router := http.NewServeMux()
@@ -80,9 +89,14 @@ var wsUpgrader = websocket.Upgrader{
 }
 
 func (p *PlayerServer) webSocket(res http.ResponseWriter, req *http.Request) {
-	conn, _ := wsUpgrader.Upgrade(res, req, nil)
-	_, winnerMsg, _ := conn.ReadMessage()
-	p.store.RecordWin(string(winnerMsg))
+	ws := newPlayerServerWS(res, req)
+
+	numberOfPlayersMsg := ws.WaitForMsg()
+	numberOfPlayers, _ := strconv.Atoi(string(numberOfPlayersMsg))
+	p.game.Start(numberOfPlayers, io.Discard) //todo: don't discard the blinds messages!
+
+	winnerMsg := ws.WaitForMsg()
+	p.game.Finish(string(winnerMsg))
 }
 
 func (p *PlayerServer) processWin(res http.ResponseWriter, player string) {
@@ -98,4 +112,23 @@ func (p *PlayerServer) showScore(res http.ResponseWriter, player string) {
 	} else {
 		fmt.Fprint(res, score)
 	}
+}
+
+func newPlayerServerWS(res http.ResponseWriter, req *http.Request) *playerServerWS {
+	conn, err := wsUpgrader.Upgrade(res, req, nil)
+
+	if err != nil {
+		log.Printf("problem upgrading connection to WebSockets %v\n", err)
+	}
+
+	return &playerServerWS{conn}
+}
+
+func (w *playerServerWS) WaitForMsg() string {
+	_, msg, err := w.ReadMessage()
+	if err != nil {
+		log.Printf("error reading from websocket %v\n", err)
+	}
+
+	return string(msg)
 }

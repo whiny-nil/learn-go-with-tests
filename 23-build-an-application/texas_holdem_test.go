@@ -1,6 +1,7 @@
 package poker_test
 
 import (
+	"io"
 	"testing"
 	"time"
 
@@ -18,7 +19,7 @@ func TestTexasHoldem_Start(t *testing.T) {
 		blindAlerter := &poker.SpyBlindAlerter{}
 		game := poker.NewTexasHoldem(dummyPlayerStore, blindAlerter)
 
-		game.Start(5)
+		game.Start(5, io.Discard)
 
 		cases := []poker.ScheduledAlert{
 			{0 * time.Second, 100},
@@ -51,7 +52,7 @@ func TestTexasHoldem_Start(t *testing.T) {
 		blindAlerter := &poker.SpyBlindAlerter{}
 		game := poker.NewTexasHoldem(dummyPlayerStore, blindAlerter)
 
-		game.Start(7)
+		game.Start(7, io.Discard)
 
 		cases := []poker.ScheduledAlert{
 			{0 * time.Second, 100},

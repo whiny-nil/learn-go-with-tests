@@ -2,6 +2,7 @@ package poker
 
 import (
 	"fmt"
+	"io"
 	"reflect"
 	"testing"
 	"time"
@@ -39,8 +40,25 @@ type SpyBlindAlerter struct {
 	Alerts []ScheduledAlert
 }
 
-func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int) {
+func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int, to io.Writer) {
 	s.Alerts = append(s.Alerts, ScheduledAlert{duration, amount})
+}
+
+type GameSpy struct {
+	StartCalled  bool
+	StartedWith  int
+	FinishCalled bool
+	FinishedWith string
+}
+
+func (g *GameSpy) Start(numberOfPlayers int, alertDestination io.Writer) {
+	g.StartCalled = true
+	g.StartedWith = numberOfPlayers
+}
+
+func (g *GameSpy) Finish(winner string) {
+	g.FinishCalled = true
+	g.FinishedWith = winner
 }
 
 func AssertPlayerWin(t testing.TB, store *StubPlayerStore, winner string) {
@@ -109,5 +127,36 @@ func AssertScheduledAlert(t *testing.T, got, want ScheduledAlert) {
 	if got.At != want.At {
 		t.Errorf("got scheduled time of %v, want %v", got.At, want.At)
 	}
+}
 
+func AssertGameNotStarted(t testing.TB, game *GameSpy) {
+	t.Helper()
+
+	if game.StartCalled {
+		t.Error("game should not have been started")
+	}
+}
+
+func AssertGameStartedWith(t testing.TB, game *GameSpy, want int) {
+	t.Helper()
+
+	if game.StartedWith != want {
+		t.Errorf("wanted Start called with %d but got %d", want, game.StartedWith)
+	}
+}
+
+func AssertGameFinishedWith(t testing.TB, game *GameSpy, want string) {
+	t.Helper()
+
+	if game.FinishedWith != want {
+		t.Errorf("got %s, want %s", game.FinishedWith, want)
+	}
+}
+
+func AssertGameNotFinished(t testing.TB, game *GameSpy) {
+	t.Helper()
+
+	if game.FinishCalled {
+		t.Error("game should not have finished")
+	}
 }
