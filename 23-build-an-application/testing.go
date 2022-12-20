@@ -45,8 +45,10 @@ func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int, to
 }
 
 type GameSpy struct {
-	StartCalled  bool
-	StartedWith  int
+	StartCalled bool
+	StartedWith int
+	BlindAlert  []byte
+
 	FinishCalled bool
 	FinishedWith string
 }
@@ -54,6 +56,7 @@ type GameSpy struct {
 func (g *GameSpy) Start(numberOfPlayers int, alertDestination io.Writer) {
 	g.StartCalled = true
 	g.StartedWith = numberOfPlayers
+	alertDestination.Write(g.BlindAlert)
 }
 
 func (g *GameSpy) Finish(winner string) {
@@ -140,15 +143,23 @@ func AssertGameNotStarted(t testing.TB, game *GameSpy) {
 func AssertGameStartedWith(t testing.TB, game *GameSpy, want int) {
 	t.Helper()
 
-	if game.StartedWith != want {
-		t.Errorf("wanted Start called with %d but got %d", want, game.StartedWith)
+	passed := retryUntil(500*time.Millisecond, func() bool {
+		return game.StartedWith == want
+	})
+
+	if !passed {
+		t.Errorf("got %d, want %d", game.StartedWith, want)
 	}
 }
 
 func AssertGameFinishedWith(t testing.TB, game *GameSpy, want string) {
 	t.Helper()
 
-	if game.FinishedWith != want {
+	passed := retryUntil(500*time.Millisecond, func() bool {
+		return game.FinishedWith == want
+	})
+
+	if !passed {
 		t.Errorf("got %s, want %s", game.FinishedWith, want)
 	}
 }
@@ -159,4 +170,15 @@ func AssertGameNotFinished(t testing.TB, game *GameSpy) {
 	if game.FinishCalled {
 		t.Error("game should not have finished")
 	}
+}
+
+func retryUntil(d time.Duration, f func() bool) bool {
+	deadline := time.Now().Add(d)
+	for time.Now().Before(deadline) {
+		if f() {
+			return true
+		}
+	}
+
+	return false
 }
